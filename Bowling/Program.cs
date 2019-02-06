@@ -80,7 +80,7 @@ namespace Bowling
                 if (ballThrowList[frame].FirstThrow + ballThrowList[frame].SecondThrow == 10 &&
                     ballThrowList[frame].FirstThrow < 10)
                 {
-                    Console.WriteLine("Spare");
+                  
 
                     currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow;
                     sum += currentFrameScore;
@@ -88,7 +88,7 @@ namespace Bowling
 
                 if (ballThrowList[frame].FirstThrow == 10 && ballThrowList[frame + 1].FirstThrow <= 10)
                 {
-                    Console.WriteLine("Strike");
+                   
 
                     currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
                     sum += currentFrameScore;
