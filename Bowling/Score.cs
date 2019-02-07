@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bowling
 {
-    class Score
+   public class Score
     {
         public List<string> Points { get; set; }
         public string Token { get; set; }

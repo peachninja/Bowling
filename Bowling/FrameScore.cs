@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bowling
 {
-    class FrameScore
+    public class FrameScore
     {
         public int FirstThrow { get; set; }
         public int SecondThrow { get; set; }
