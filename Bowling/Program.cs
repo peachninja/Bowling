@@ -19,17 +19,17 @@ namespace Bowling
                 request.AddHeader("Content-Type", "application/json");
 
                 IRestResponse<Score> response = client.Execute<Score>(request);
-                //var dataPoints = response.Data.Points;
+                var dataPoints = response.Data.Points;
 
-                List<string> dataPoints = new List<string>();
+                //List<string> dataPoints = new List<string>();
 
-                dataPoints.Add("[10,0]");
-                dataPoints.Add("[10,0]");
-                dataPoints.Add("[7,2]");
-                dataPoints.Add("[7,3]");
-                dataPoints.Add("[10,0]");
-                dataPoints.Add("[10,0]");
-                dataPoints.Add("[1,0]");
+                //dataPoints.Add("[10,0]");
+                //dataPoints.Add("[10,0]");
+                //dataPoints.Add("[7,2]");
+                //dataPoints.Add("[7,3]");
+                //dataPoints.Add("[10,0]");
+                //dataPoints.Add("[10,0]");
+                //dataPoints.Add("[1,0]");
 
 
                 var token = response.Data.Token;
@@ -153,16 +153,16 @@ namespace Bowling
             string postScore = "";
 
 
-            if (frames.Count == 11)
+            if (ballThrowList.Count == 11)
             {
-                sum += frames[10][0] + frames[10][1];
+                sum += ballThrowList[10].FirstThrow + ballThrowList[10].SecondThrow;
                 sumArray.Add(sum);
                 sumArray.RemoveAt(10);
 
             }
             else
             {
-                sum += frames.Last().Sum();
+                sum += ballThrowList.Last().FirstThrow + ballThrowList.Last().SecondThrow;
                 sumArray.Add(sum);
 
             }

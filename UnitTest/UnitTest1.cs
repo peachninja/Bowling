@@ -78,9 +78,9 @@ namespace UnitTest
             TrimData(dataPoints, frames, ballThrowList);
 
             //testing the throws to find if the  frame is a strike
-            Assert.AreEqual(false, IsStrike(ballThrowList[0].FirstThrow, ballThrowList[0].SecondThrow));
-            Assert.AreEqual(false, IsStrike(ballThrowList[1].FirstThrow, ballThrowList[1].SecondThrow));
-            Assert.AreEqual(true, IsStrike(ballThrowList[2].FirstThrow, ballThrowList[2].SecondThrow));
+            Assert.AreEqual(false, IsStrike(ballThrowList[0].FirstThrow));
+            Assert.AreEqual(false, IsStrike(ballThrowList[1].FirstThrow));
+            Assert.AreEqual(true, IsStrike(ballThrowList[2].FirstThrow));
             dataPoints.Clear();
 
 
@@ -100,10 +100,10 @@ namespace UnitTest
             //testing the throws to find if the  frame is a double strike
             
            //check if the previous first throw is not a strike expects false
-            Assert.AreEqual(false, IsDoubleStrike(ballThrowList[2].FirstThrow, ballThrowList[2].SecondThrow, ballThrowList[1].FirstThrow));
+            Assert.AreEqual(false, IsDoubleStrike(ballThrowList[2].FirstThrow, ballThrowList[1].FirstThrow));
 
             //check if the previous first throw is a strike expects true
-            Assert.AreEqual(true, IsDoubleStrike(ballThrowList[3].FirstThrow, ballThrowList[3].SecondThrow, ballThrowList[2].FirstThrow));
+            Assert.AreEqual(true, IsDoubleStrike(ballThrowList[3].FirstThrow,ballThrowList[2].FirstThrow));
             dataPoints.Clear();
 
 
@@ -127,14 +127,36 @@ namespace UnitTest
             TrimData(dataPoints, frames, ballThrowList);
 
             
-            Assert.AreEqual(false, IsTripleStrike(ballThrowList[6].FirstThrow, ballThrowList[6].SecondThrow, ballThrowList[5].FirstThrow, ballThrowList[7].FirstThrow));
+            Assert.AreEqual(false, IsTripleStrike(ballThrowList[6].FirstThrow,ballThrowList[5].FirstThrow, ballThrowList[7].FirstThrow));
 
            
-            Assert.AreEqual(true, IsTripleStrike(ballThrowList[3].FirstThrow, ballThrowList[3].SecondThrow, ballThrowList[2].FirstThrow, ballThrowList[4].FirstThrow));
+            Assert.AreEqual(true, IsTripleStrike(ballThrowList[3].FirstThrow, ballThrowList[2].FirstThrow, ballThrowList[4].FirstThrow));
             dataPoints.Clear();
 
 
         }
+
+        [TestMethod]
+        public void TestSumScore()
+        {
+
+            dataPoints.Add("[7,3]");
+            dataPoints.Add("[7,2]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[7,2]");
+
+            TrimData(dataPoints, frames, ballThrowList);
+
+
+            dataPoints.Clear();
+
+
+        }
+
         private static void TrimData(List<string> dataPoints, List<int[]> frames, List<FrameScore> ballThrowList)
         {
             foreach (var var in dataPoints)
@@ -178,9 +200,9 @@ namespace UnitTest
             }
         }
 
-        private bool IsStrike(int throw1, int throw2)
+        private bool IsStrike(int throw1)
         {
-            if (throw1 == 10 && throw2 == 0)
+            if (throw1 == 10)
             {
                 return true;
             }
@@ -189,9 +211,9 @@ namespace UnitTest
                 return false;
             }
         }
-        private bool IsDoubleStrike(int throw1, int throw2, int previousFirstThrow)
+        private bool IsDoubleStrike(int throw1, int previousFirstThrow)
         {
-            if (IsStrike(throw1, throw2) == true)
+            if (IsStrike(throw1))
             {
                 if (previousFirstThrow == 10)
                 {
@@ -207,9 +229,9 @@ namespace UnitTest
                 return false;
             }
         }
-        private bool IsTripleStrike(int throw1, int throw2, int previousFirstThrow, int nextFirstThrow)
+        private bool IsTripleStrike(int throw1, int previousFirstThrow, int nextFirstThrow)
         {
-            if (IsDoubleStrike(throw1, throw2, previousFirstThrow))
+            if (IsDoubleStrike(throw1, previousFirstThrow))
             {
                 if (nextFirstThrow == 10)
                 {
@@ -225,66 +247,63 @@ namespace UnitTest
                 return false;
             }
         }
-        private static string PostScore(List<FrameScore> ballThrowList, List<int[]> frames, List<string> dataPoints)
+        private List<int> PostScore(List<FrameScore> ballThrowList)
         {
             int sum = 0;
 
             List<int> sumArray = new List<int>();
             for (int frame = 0; frame < ballThrowList.Count - 1; frame++)
             {
-                Console.WriteLine(ballThrowList[frame].FirstThrow + " " + ballThrowList[frame].SecondThrow);
+               
                 int currentFrameScore = 0;
 
-                if (ballThrowList[frame].FirstThrow + ballThrowList[frame].SecondThrow < 10)
+                if (IsOpenFrame(ballThrowList[frame].FirstThrow, ballThrowList[frame].SecondThrow))
                 {
                     sum += ballThrowList[frame].FirstThrow +
                            ballThrowList[frame].SecondThrow;
                 }
-                //this check if it is a Spare
-                else if (ballThrowList[frame].FirstThrow + ballThrowList[frame].SecondThrow == 10 &&
-                    ballThrowList[frame].FirstThrow != 10)
+                
+                else if (IsSpare(ballThrowList[frame].FirstThrow, ballThrowList[frame].SecondThrow))
                 {
-                    Console.WriteLine("Spare");
-
                     currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow;
                     sum += currentFrameScore;
                 }
-                //this check if it is  a Strike
-                else if (ballThrowList[frame].FirstThrow == 10 && ballThrowList[frame].SecondThrow == 0)
+              
+                else if (IsStrike(ballThrowList[frame].FirstThrow))
                 {
-                    //check if this is not the first throw at the game, to check if previous thorw was a strike
-                    if (frame > 0 && ballThrowList[frame - 1].FirstThrow == 10)
+                   
+                    if (frame > 0 && IsDoubleStrike(ballThrowList[frame].FirstThrow,  ballThrowList[frame - 1].FirstThrow))
                     {
 
-                        //check to see if next throw is also a strike
-                        if (ballThrowList[frame + 1].FirstThrow == 10)
+                      
+                        if (IsTripleStrike(ballThrowList[frame].FirstThrow, ballThrowList[frame - 1].FirstThrow, ballThrowList[frame + 1].FirstThrow))
                         {
-                            Console.WriteLine("Turkey");
+                           
                             currentFrameScore = 30;
                             sum += currentFrameScore;
                         }
-                        //if next throw is not a strike, add points now plus the next frames score
+                      
                         else
                         {
-                            Console.WriteLine("Double Strike");
+                          
                             currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
                             sum += currentFrameScore;
                         }
                     }
-                    //if this is the first throw with a strike
+                 
                     else
                     {
-                        //if next throw also is a strike, add 20 and also the first throw from the next 2 frames from now
+                     
                         if (ballThrowList[frame + 1].FirstThrow == 10)
                         {
-                            Console.WriteLine("Double Strike");
+                           
                             currentFrameScore = 20 + ballThrowList[frame + 2].FirstThrow;
                             sum += currentFrameScore;
                         }
                         else
                         {
-                            //if next throw is not a strike, add 10 points plus next frame throws
-                            Console.WriteLine("Strike");
+                          
+                         
                             currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
                             sum += currentFrameScore;
                         }
@@ -293,35 +312,27 @@ namespace UnitTest
 
                 }
 
-
-
-
-                sumArray.Add(sum);
+             sumArray.Add(sum);
             }
 
-            string postScore = "";
+            
 
 
-            if (frames.Count == 11)
+            if (ballThrowList.Count == 11)
             {
-                sum += frames[10][0] + frames[10][1];
+                sum += ballThrowList[10].FirstThrow + ballThrowList[10].SecondThrow;
                 sumArray.Add(sum);
                 sumArray.RemoveAt(10);
 
             }
             else
             {
-                sum += frames.Last().Sum();
+                sum += ballThrowList.Last().FirstThrow + ballThrowList.Last().SecondThrow;
                 sumArray.Add(sum);
 
             }
 
-
-            int[] myints = sumArray.ToArray();
-
-            postScore = String.Join(",", myints.Select(p => p.ToString()).ToArray());
-
-            return postScore;
+       return sumArray;
         }
     }
 }
