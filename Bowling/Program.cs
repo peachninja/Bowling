@@ -17,17 +17,26 @@ namespace Bowling
                 var client = new RestClient("http://13.74.31.101/api");
                 var request = new RestRequest("/points", Method.GET);
                 request.AddHeader("Content-Type", "application/json");
-               
+
                 IRestResponse<Score> response = client.Execute<Score>(request);
-                var dataPoints = response.Data.Points;
+                //var dataPoints = response.Data.Points;
+
+                List<string> dataPoints = new List<string>();
+
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[7,2]");
+                dataPoints.Add("[7,3]");
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[1,0]");
 
 
-           
                 var token = response.Data.Token;
 
                 List<FrameScore> ballThrowList = new List<FrameScore>();
                 List<int[]> frames = new List<int[]>();
-              
+
                 TrimData(dataPoints, frames, ballThrowList);
 
 
@@ -77,36 +86,65 @@ namespace Bowling
                 Console.WriteLine(ballThrowList[frame].FirstThrow + " " + ballThrowList[frame].SecondThrow);
                 int currentFrameScore = 0;
 
-                if (ballThrowList[frame].FirstThrow + ballThrowList[frame].SecondThrow == 10 &&
-                    ballThrowList[frame].FirstThrow < 10)
-                {
-                  
-
-                    currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow;
-                    sum += currentFrameScore;
-                }
-
-                if (ballThrowList[frame].FirstThrow == 10 && ballThrowList[frame + 1].FirstThrow <= 10)
-                {
-                   
-
-                    currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
-                    sum += currentFrameScore;
-                }
-
-                if (ballThrowList[frame].FirstThrow == 10 && ballThrowList[frame + 1].FirstThrow == 10)
-                {
-                    Console.WriteLine("Strike");
-
-                    currentFrameScore = 10;
-                    sum += currentFrameScore;
-                }
-
                 if (ballThrowList[frame].FirstThrow + ballThrowList[frame].SecondThrow < 10)
                 {
                     sum += ballThrowList[frame].FirstThrow +
                            ballThrowList[frame].SecondThrow;
                 }
+                //this check if it is a Spare
+                else if (ballThrowList[frame].FirstThrow + ballThrowList[frame].SecondThrow == 10 &&
+                    ballThrowList[frame].FirstThrow != 10)
+                {
+                    Console.WriteLine("Spare");
+
+                    currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow;
+                    sum += currentFrameScore;
+                }
+                //this check if it is  a Strike
+                else if (ballThrowList[frame].FirstThrow == 10 && ballThrowList[frame].SecondThrow == 0)
+                {
+                    //check if this is not the first throw at the game, to check if previous thorw was a strike
+                    if (frame > 0 && ballThrowList[frame - 1].FirstThrow == 10)
+                    {
+
+                        //check to see if next throw is also a strike
+                        if (ballThrowList[frame + 1].FirstThrow == 10)
+                        {
+                            Console.WriteLine("Turkey");
+                            currentFrameScore = 30;
+                            sum += currentFrameScore;
+                        }
+                        //if next throw is not a strike, add points now plus the next frames score
+                        else
+                        {
+                            Console.WriteLine("Double Strike");
+                            currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
+                            sum += currentFrameScore;
+                        }
+                    }
+                    //if this is the first throw with a strike
+                    else
+                    {
+                        //if next throw also is a strike, add 20 and also the first throw from the next 2 frames from now
+                        if (ballThrowList[frame + 1].FirstThrow == 10)
+                        {
+                            Console.WriteLine("Double Strike");
+                            currentFrameScore = 20 + ballThrowList[frame + 2].FirstThrow;
+                            sum += currentFrameScore;
+                        }
+                        else
+                        {
+                            //if next throw is not a strike, add 10 points plus next frame throws
+                            Console.WriteLine("Strike");
+                            currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
+                            sum += currentFrameScore;
+                        }
+
+                    }
+
+                }
+
+
 
 
                 sumArray.Add(sum);
@@ -114,32 +152,25 @@ namespace Bowling
 
             string postScore = "";
 
-            sum += frames.Last().Sum();
-            if (dataPoints.Count == 11)
+
+            if (frames.Count == 11)
             {
                 sum += frames[10][0] + frames[10][1];
-            }
+                sumArray.Add(sum);
+                sumArray.RemoveAt(10);
 
-            sumArray.Add(sum);
-            if (frames.Count == 11 && sum > 300)
-            {
-                sumArray.RemoveAt(10);
-                int[] myints = sumArray.ToArray();
-                myints[9] -= 10;
-                postScore = String.Join(",", myints.Select(p => p.ToString()).ToArray());
-            }
-            else if (frames.Count == 11 && sum < 300)
-            {
-                sumArray.RemoveAt(10);
-                int[] myints = sumArray.ToArray();
-                postScore = String.Join(",", myints.Select(p => p.ToString()).ToArray());
             }
             else
             {
-                int[] myints = sumArray.ToArray();
+                sum += frames.Last().Sum();
+                sumArray.Add(sum);
 
-                postScore = String.Join(",", myints.Select(p => p.ToString()).ToArray());
             }
+
+
+            int[] myints = sumArray.ToArray();
+
+            postScore = String.Join(",", myints.Select(p => p.ToString()).ToArray());
 
             return postScore;
         }
