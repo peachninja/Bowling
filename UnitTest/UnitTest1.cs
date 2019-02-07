@@ -13,8 +13,7 @@ namespace UnitTest
         List<FrameScore> ballThrowList = new List<FrameScore>();
         List<int[]> frames = new List<int[]>();
 
-        int sum = 0;
-        List<int> sumArray = new List<int>();
+        
         [TestMethod]
         public void TestScorePoints()
         {
@@ -50,6 +49,92 @@ namespace UnitTest
 
 
         }
+
+        [TestMethod]
+        public void TestOpenFrame()
+        {
+
+            dataPoints.Add("[7,3]");
+            dataPoints.Add("[7,2]");
+            dataPoints.Add("[10,0]");
+            TrimData(dataPoints, frames, ballThrowList);
+
+            //testing the throws to find if the  frame is open
+            Assert.AreEqual(false, IsOpenFrame(ballThrowList[0].FirstThrow, ballThrowList[0].SecondThrow));
+            Assert.AreEqual(true, IsOpenFrame(ballThrowList[1].FirstThrow, ballThrowList[1].SecondThrow));
+            Assert.AreEqual(false, IsOpenFrame(ballThrowList[2].FirstThrow, ballThrowList[2].SecondThrow));
+            dataPoints.Clear();
+
+
+        }
+
+        [TestMethod]
+        public void TestStrike()
+        {
+
+            dataPoints.Add("[7,3]");
+            dataPoints.Add("[7,2]");
+            dataPoints.Add("[10,0]");
+            TrimData(dataPoints, frames, ballThrowList);
+
+            //testing the throws to find if the  frame is a strike
+            Assert.AreEqual(false, IsStrike(ballThrowList[0].FirstThrow, ballThrowList[0].SecondThrow));
+            Assert.AreEqual(false, IsStrike(ballThrowList[1].FirstThrow, ballThrowList[1].SecondThrow));
+            Assert.AreEqual(true, IsStrike(ballThrowList[2].FirstThrow, ballThrowList[2].SecondThrow));
+            dataPoints.Clear();
+
+
+        }
+        [TestMethod]
+        public void TestDoubleStrike()
+        {
+
+            dataPoints.Add("[7,3]");
+            dataPoints.Add("[7,2]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            
+         
+            TrimData(dataPoints, frames, ballThrowList);
+
+            //testing the throws to find if the  frame is a double strike
+            
+           //check if the previous first throw is not a strike expects false
+            Assert.AreEqual(false, IsDoubleStrike(ballThrowList[2].FirstThrow, ballThrowList[2].SecondThrow, ballThrowList[1].FirstThrow));
+
+            //check if the previous first throw is a strike expects true
+            Assert.AreEqual(true, IsDoubleStrike(ballThrowList[3].FirstThrow, ballThrowList[3].SecondThrow, ballThrowList[2].FirstThrow));
+            dataPoints.Clear();
+
+
+        }
+
+        //Since the higest point per.frame is 30 points by scoring 3 strikes in a roll, no need to check further
+        [TestMethod]
+        public void TestTripleStrike()
+        {
+
+            dataPoints.Add("[7,3]");
+            dataPoints.Add("[7,2]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[7,2]");
+
+            TrimData(dataPoints, frames, ballThrowList);
+
+            
+            Assert.AreEqual(false, IsTripleStrike(ballThrowList[6].FirstThrow, ballThrowList[6].SecondThrow, ballThrowList[5].FirstThrow, ballThrowList[7].FirstThrow));
+
+           
+            Assert.AreEqual(true, IsTripleStrike(ballThrowList[3].FirstThrow, ballThrowList[3].SecondThrow, ballThrowList[2].FirstThrow, ballThrowList[4].FirstThrow));
+            dataPoints.Clear();
+
+
+        }
         private static void TrimData(List<string> dataPoints, List<int[]> frames, List<FrameScore> ballThrowList)
         {
             foreach (var var in dataPoints)
@@ -74,6 +159,66 @@ namespace UnitTest
             if (throw1 + throw2 == 10 && throw1 != 10)
             {
                 return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private bool IsOpenFrame(int throw1, int throw2)
+        {
+            if (throw1 + throw2 < 10)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private bool IsStrike(int throw1, int throw2)
+        {
+            if (throw1 == 10 && throw2 == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool IsDoubleStrike(int throw1, int throw2, int previousFirstThrow)
+        {
+            if (IsStrike(throw1, throw2) == true)
+            {
+                if (previousFirstThrow == 10)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool IsTripleStrike(int throw1, int throw2, int previousFirstThrow, int nextFirstThrow)
+        {
+            if (IsDoubleStrike(throw1, throw2, previousFirstThrow))
+            {
+                if (nextFirstThrow == 10)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
