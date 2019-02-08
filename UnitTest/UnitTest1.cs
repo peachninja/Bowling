@@ -168,6 +168,46 @@ namespace UnitTest
 
         }
 
+        [TestMethod]
+        public void TestPerfectScore()
+        {
+
+         
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+            dataPoints.Add("[10,0]");
+
+
+            TrimData(dataPoints, frames, ballThrowList);
+            List<int> testScoreList = new List<int>();
+            testScoreList.Add(30);
+            testScoreList.Add(60);
+            testScoreList.Add(90);
+            testScoreList.Add(120);
+            testScoreList.Add(150);
+            testScoreList.Add(180);
+            testScoreList.Add(210);
+            testScoreList.Add(240);
+            testScoreList.Add(270);
+            testScoreList.Add(300);
+
+            List<int> testScoreListToTest = PostScore(ballThrowList);
+            CollectionAssert.AreEqual(testScoreList, testScoreListToTest);
+
+
+            dataPoints.Clear();
+
+
+        }
+
         private static void TrimData(List<string> dataPoints, List<int[]> frames, List<FrameScore> ballThrowList)
         {
             foreach (var var in dataPoints)
@@ -266,84 +306,117 @@ namespace UnitTest
             List<int> sumArray = new List<int>();
             for (int frame = 0; frame < ballThrowList.Count - 1; frame++)
             {
-               
+                Console.WriteLine(ballThrowList[frame].FirstThrow + " " + ballThrowList[frame].SecondThrow);
                 int currentFrameScore = 0;
 
-                if (IsOpenFrame(ballThrowList[frame].FirstThrow, ballThrowList[frame].SecondThrow))
+                if (ballThrowList[frame].FirstThrow + ballThrowList[frame].SecondThrow < 10)
                 {
                     sum += ballThrowList[frame].FirstThrow +
                            ballThrowList[frame].SecondThrow;
                 }
-                
-                else if (IsSpare(ballThrowList[frame].FirstThrow, ballThrowList[frame].SecondThrow))
+            
+                else if (ballThrowList[frame].FirstThrow + ballThrowList[frame].SecondThrow == 10 &&
+                    ballThrowList[frame].FirstThrow != 10)
                 {
+                 
+
                     currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow;
                     sum += currentFrameScore;
                 }
-              
-                else if (IsStrike(ballThrowList[frame].FirstThrow))
+             
+                else if (ballThrowList[frame].FirstThrow == 10 && ballThrowList[frame].SecondThrow == 0)
                 {
-                   
-                    if (frame > 0 && IsDoubleStrike(ballThrowList[frame].FirstThrow,  ballThrowList[frame - 1].FirstThrow))
+                  
+                    if (frame > 0 && ballThrowList[frame - 1].FirstThrow == 10)
                     {
 
-                        if ((ballThrowList.Count - 2) >= frame)
+                        if (frame == 10)
                         {
-                            if (IsTripleStrike(ballThrowList[frame].FirstThrow, ballThrowList[frame - 1].FirstThrow,
-                                    ballThrowList[frame + 1].FirstThrow) && ballThrowList[frame + 2].FirstThrow == 10)
+                          
+                            if (ballThrowList.Count >= frame + 2 && frame < 10)
                             {
+                                if (ballThrowList[frame + 1].FirstThrow == 10 && ballThrowList[frame + 2].FirstThrow == 10)
+                                {
+                                  
+                                    currentFrameScore = 30;
+                                    sum += currentFrameScore;
+                                }
 
+                                else if (ballThrowList[frame + 1].FirstThrow == 10 && ballThrowList[frame + 2].FirstThrow < 10)
+                                {
+
+                                    currentFrameScore = 20 + ballThrowList[frame + 2].FirstThrow;
+                                    sum += currentFrameScore;
+                                }
+                           
+                                else
+                                {
+                                   
+                                    currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
+                                    sum += currentFrameScore;
+                                }
+                            }
+                            else if(ballThrowList.Count >= frame + 2 && frame < 10)
+                            {
+                                if (ballThrowList[frame + 1].FirstThrow == 10 && ballThrowList[frame + 2].FirstThrow < 10)
+                                {
+
+                                    currentFrameScore = 20 + ballThrowList[frame + 2].FirstThrow;
+                                    sum += currentFrameScore;
+                                }
+
+
+                                else
+                                {
+                                 
+                                    currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
+                                    sum += currentFrameScore;
+                                }
+                            }
+                        }
+                        else if(ballThrowList.Count >= frame + 2 && ballThrowList.Count < 11)
+                        {
+                            if (ballThrowList[frame + 1].FirstThrow == 10 && ballThrowList[frame + 2].FirstThrow == 10)
+                            {
+                               
                                 currentFrameScore = 30;
                                 sum += currentFrameScore;
                             }
-                            else if (ballThrowList[frame + 1].FirstThrow == 10 &&
-                                     ballThrowList[frame + 2].FirstThrow < 10)
+                            else if (ballThrowList[frame + 1].FirstThrow == 10 && ballThrowList[frame + 2].FirstThrow < 10)
                             {
 
                                 currentFrameScore = 20 + ballThrowList[frame + 2].FirstThrow;
                                 sum += currentFrameScore;
                             }
 
+
                             else
                             {
-
-                                currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow +
-                                                    ballThrowList[frame + 1].SecondThrow;
+                               
+                                currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
                                 sum += currentFrameScore;
                             }
                         }
                         else
                         {
-                            if (IsTripleStrike(ballThrowList[frame].FirstThrow, ballThrowList[frame - 1].FirstThrow,
-                                    ballThrowList[frame + 1].FirstThrow) )
-                            {
-
-                                currentFrameScore = 30;
-                                sum += currentFrameScore;
-                            }
-                         
-                            else
-                            {
-
-                                currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow +
-                                                    ballThrowList[frame + 1].SecondThrow;
-                                sum += currentFrameScore;
-                            }
+                            currentFrameScore = 30;
+                            sum += currentFrameScore;
                         }
+
+
                     }
                  
                     else
                     {
-                     
+                       
                         if (ballThrowList[frame + 1].FirstThrow == 10)
                         {
-                           
+                          
                             currentFrameScore = 20 + ballThrowList[frame + 2].FirstThrow;
                             sum += currentFrameScore;
                         }
                         else
                         {
-                          
                          
                             currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
                             sum += currentFrameScore;
@@ -353,10 +426,14 @@ namespace UnitTest
 
                 }
 
-             sumArray.Add(sum);
+
+
+
+                sumArray.Add(sum);
             }
 
-            
+
+
 
 
             if (ballThrowList.Count == 11)
