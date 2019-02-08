@@ -150,7 +150,18 @@ namespace UnitTest
             dataPoints.Add("[7,2]");
 
             TrimData(dataPoints, frames, ballThrowList);
-
+            List<int> testScoreList = new List<int>();
+            testScoreList.Add(17);
+            testScoreList.Add(26);
+            testScoreList.Add(56);
+            testScoreList.Add(86);
+            testScoreList.Add(116);
+            testScoreList.Add(143);
+            testScoreList.Add(162);
+            testScoreList.Add(171);
+            List<int> testScoreListToTest = PostScore(ballThrowList);
+            CollectionAssert.AreEqual(testScoreList, testScoreListToTest);
+          
 
             dataPoints.Clear();
 
@@ -233,10 +244,11 @@ namespace UnitTest
         {
             if (IsDoubleStrike(throw1, previousFirstThrow))
             {
-                if (nextFirstThrow == 10)
+                if (nextFirstThrow == 10 )
                 {
                     return true;
                 }
+              
                 else
                 {
                     return false;
@@ -275,19 +287,48 @@ namespace UnitTest
                     if (frame > 0 && IsDoubleStrike(ballThrowList[frame].FirstThrow,  ballThrowList[frame - 1].FirstThrow))
                     {
 
-                      
-                        if (IsTripleStrike(ballThrowList[frame].FirstThrow, ballThrowList[frame - 1].FirstThrow, ballThrowList[frame + 1].FirstThrow))
+                        if ((ballThrowList.Count - 2) >= frame)
                         {
-                           
-                            currentFrameScore = 30;
-                            sum += currentFrameScore;
+                            if (IsTripleStrike(ballThrowList[frame].FirstThrow, ballThrowList[frame - 1].FirstThrow,
+                                    ballThrowList[frame + 1].FirstThrow) && ballThrowList[frame + 2].FirstThrow == 10)
+                            {
+
+                                currentFrameScore = 30;
+                                sum += currentFrameScore;
+                            }
+                            else if (ballThrowList[frame + 1].FirstThrow == 10 &&
+                                     ballThrowList[frame + 2].FirstThrow < 10)
+                            {
+
+                                currentFrameScore = 20 + ballThrowList[frame + 2].FirstThrow;
+                                sum += currentFrameScore;
+                            }
+
+                            else
+                            {
+
+                                currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow +
+                                                    ballThrowList[frame + 1].SecondThrow;
+                                sum += currentFrameScore;
+                            }
                         }
-                      
                         else
                         {
-                          
-                            currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
-                            sum += currentFrameScore;
+                            if (IsTripleStrike(ballThrowList[frame].FirstThrow, ballThrowList[frame - 1].FirstThrow,
+                                    ballThrowList[frame + 1].FirstThrow) )
+                            {
+
+                                currentFrameScore = 30;
+                                sum += currentFrameScore;
+                            }
+                         
+                            else
+                            {
+
+                                currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow +
+                                                    ballThrowList[frame + 1].SecondThrow;
+                                sum += currentFrameScore;
+                            }
                         }
                     }
                  

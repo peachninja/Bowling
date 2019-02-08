@@ -19,17 +19,18 @@ namespace Bowling
                 request.AddHeader("Content-Type", "application/json");
 
                 IRestResponse<Score> response = client.Execute<Score>(request);
-                var dataPoints = response.Data.Points;
+                //var dataPoints = response.Data.Points;
 
-                //List<string> dataPoints = new List<string>();
+                List<string> dataPoints = new List<string>();
 
-                //dataPoints.Add("[10,0]");
-                //dataPoints.Add("[10,0]");
-                //dataPoints.Add("[7,2]");
-                //dataPoints.Add("[7,3]");
-                //dataPoints.Add("[10,0]");
-                //dataPoints.Add("[10,0]");
-                //dataPoints.Add("[1,0]");
+                dataPoints.Add("[7,3]");
+                dataPoints.Add("[7,2]");
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[10,0]");
+                dataPoints.Add("[7,2]");
 
 
                 var token = response.Data.Token;
@@ -108,19 +109,49 @@ namespace Bowling
                     {
 
                         //check to see if next throw is also a strike
-                        if (ballThrowList[frame + 1].FirstThrow == 10)
+                        //check if it the triple strike still is continuing and the next 2 frame strike streak stops and to see if there is still at least 2 frames left
+                        if ((ballThrowList.Count - 2) >= frame)
                         {
-                            Console.WriteLine("Turkey");
-                            currentFrameScore = 30;
-                            sum += currentFrameScore;
+                            if (ballThrowList[frame + 1].FirstThrow == 10 && ballThrowList[frame + 2].FirstThrow == 10)
+                            {
+                                Console.WriteLine("Turkey");
+                                currentFrameScore = 30;
+                                sum += currentFrameScore;
+                            }
+                         
+                            else if (ballThrowList[frame + 1].FirstThrow == 10 && ballThrowList[frame + 2].FirstThrow < 10)
+                            {
+
+                                currentFrameScore = 20 + ballThrowList[frame + 2].FirstThrow;
+                                sum += currentFrameScore;
+                            }
+                            //if next throw is not a strike, add points now plus the next frames score
+                            else
+                            {
+                                Console.WriteLine("Double Strike");
+                                currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
+                                sum += currentFrameScore;
+                            }
                         }
-                        //if next throw is not a strike, add points now plus the next frames score
                         else
                         {
-                            Console.WriteLine("Double Strike");
-                            currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
-                            sum += currentFrameScore;
+                            if (ballThrowList[frame + 1].FirstThrow == 10 )
+                            {
+                                Console.WriteLine("Turkey");
+                                currentFrameScore = 30;
+                                sum += currentFrameScore;
+                            }
+                         
+                           
+                            //if next throw is not a strike, add points now plus the next frames score
+                            else
+                            {
+                                Console.WriteLine("Double Strike");
+                                currentFrameScore = 10 + ballThrowList[frame + 1].FirstThrow + ballThrowList[frame + 1].SecondThrow;
+                                sum += currentFrameScore;
+                            }
                         }
+                      
                     }
                     //if this is the first throw with a strike
                     else
